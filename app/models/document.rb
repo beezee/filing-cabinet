@@ -5,7 +5,7 @@ class Document < ActiveRecord::Base
     integer :id
     time :created_at
     time :updated_at
-    text :document_content
+    text :document_content, stored: true
   end
 
   def document_content

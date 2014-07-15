@@ -4,10 +4,16 @@ class DocumentsController < ApplicationController
   # GET /documents
   # GET /documents.json
   def index
-    @documents = params[:q] ?
-      Document.search { fulltext params[:q] }.results : Document.all
-    puts params[:q]
-    puts @documents
+    search = Document.search { fulltext(params[:q]) { highlight :document_content } } if params[:q]
+    @documents = search.results || Document.all
+    return unless search
+    @hits = []
+    search.hits.each do |hit|
+      hl = hit.highlights(:document_content).map do |highlight|
+        highlight.format { |word| "<span style='background-color:yellow;font-style:italic;'>#{word}</span>" }
+      end
+      @hits.push hl.join(", ")
+    end
   end
 
   # GET /documents/1
